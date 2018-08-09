@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<style>
+.unselectable {
+  -webkit-user-select:none;
+  -khtml-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  -o-user-select:none;
+  user-select:none;
+}
+.glyphicon-shopping-cart{pointer-events:none;}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script>
+$(function(){
+	$("tr").mouseenter(function(){$(this).find("span").toggleClass("glyphicon glyphicon-trash");});
+	$("tr").mouseleave(function(){$(this).find("span").toggleClass("glyphicon glyphicon-trash");});
+	$("#ProductInput").change(function(){
+		var ChangedVal = $("#ProductInput").val();
+		var IsFound = false;
+		for (var i = 0; i < Stock.length; i++){
+			if(Stock[i]["name"] == ChangedVal){
+				$("#QuantityInput").attr("placeholder",  "Quantity... max "+Stock[i]["quantity"]).val("").focus().blur();
+				IsFound = true;
+			}
+		}
+		if(!IsFound && $("#QuantityInput").val() !== "Quantity..."){
+			$("#QuantityInput").attr("placeholder", "Quantity...").val("").focus().blur();
+		}
+	});
+	var Apple = {name: "Apple", price: 4.30, quantity: 50};
+	var Apricot = {name: "Apricot", price: 6.00, quantity: 40};
+	var Aubergine = {name: "Aubergine", price: 5.90, quantity: 35};
+	var Avocado = {name: "Avocado", price: 1.20, quantity: 100};
+	var Banana = {name: "Banana", price: 3.40, quantity: 150};
+	var Broccoli = {name: "Broccoli", price: 4.70, quantity: 20};
+	var Carrot = {name: "Carrot", price: 2.97, quantity: 10};
+	var Cherry ={name: "Cherry", price: 5.88, quantity: 70};
+	var Fig = {name: "Fig", price: 3.00, quantity: 65};
+	var Grape = {name: "Grape", price: 3.00, quantity: 65};
+	var Lemon = {name: "Lemon", price: 0.99, quantity: 39};
+	var Stock = [Apple,Apricot,Aubergine,Avocado,Banana,Broccoli,Carrot,Cherry,Fig,Grape,Lemon];
+	
+	function AddProduct(product, quantity){
+		$("tbody").append("<tr><td>"+product+"</td><td>"+parseFloat(GetProperty(product,'price')).toFixed(2)+"</td><td>"+quantity+"</td><td>"+parseFloat(quantity*GetProperty(product,'price')).toFixed(2)+"</td><td class='text-right'><span class = ''></span><td></tr>");
+		$("#ProductInput").val("");
+		$("#QuantityInput").val("");
+		$("tr").last().mouseenter(function(){
+		$(this).find("span").toggleClass("glyphicon glyphicon-trash");});
+		$("tr").last().mouseleave(function(){
+		$(this).find("span").toggleClass("glyphicon glyphicon-trash");});
+		$("tr").last().find("span").click(
+			function(){
+				if(confirm("Please press OK to delete!")){
+					var name = $(this).parent().parent().children().html();
+					var quant = $(this).parent().parent().children().next().next().html();
+					$(this).parent().parent().remove();
+					for(var i in Stock){
+						if(Stock[i]["name"] == name){
+							Stock[i]["quantity"] += parseInt(quant);
+						}
+					}
+				}
+			});
+		$("#QuantityInput").attr("placeholder", "Quantity...").val("").focus().blur();
+	}
+	function GetProperty(obj, property){
+		for (var i = 0; i < Stock.length; i++){
+			if(Stock[i]["name"] == obj){
+			return Stock[i][property];
+			}
+		}
+	}
+	
+	$("button").click(function(){
+		var IsInStock = false;
+		var Product = $("#ProductInput").val();
+		var Quantity = $("#QuantityInput").val();
+		if (Product == "" || $.trim(Product) == ""){
+			if (Quantity == "" || $.trim(Quantity) == ""){
+				alert("Please enter product name and quantity");
+			}
+			else{
+				alert("Please enter product name");
+			}
+		}
+		else{
+			if (Quantity == "" || $.trim(Quantity) == ""){
+				alert("Please enter quantity");
+			}
+			else{
+				for (var i in Stock){
+					if (Stock[i]["name"]==Product){
+						IsInStock = true;
+						if (Stock[i]["quantity"] == 0){
+							alert ("Sorry, "+Stock[i]["name"] + "s are SOLD OUT");
+						}
+						else {
+							if (Math.round(Quantity) == Quantity){
+								if (Quantity <= Stock[i]["quantity"]){
+									Stock[i]["quantity"] -= Quantity;
+									AddProduct(Product, Quantity);
+								}
+								else{
+									alert("Sorry, we have only "+ Stock[i]["quantity"]+" "+ Stock[i]["name"]+"s.");
+								}						
+							}
+							else{
+								alert("Please enter a whole number, max "+ Stock[i]["quantity"]);
+							}
+						}
+					}						
+				}
+				if (!IsInStock){
+					alert("Sorry, do don't have "+ Product+" in the stock")
+				}
+				
+			}
+			
+		}
+	});
+
+});
+</script>
+</head>
+<body>
+<div class="container" style="width:60%;">
+	<div id="myInputDIV" class="page-header">
+		<h1  class='text-center' >Shopping List</h2>
+	</div >
+		
+	
+	
+	
+	
+	<div class="row" style="vertical-align:middle;">
+		<div class="col-sm-5">
+			<div class="row">
+				<label class="control-label col-sm-3" for="ProductInput">Product:</label>
+				<div class="col-sm-9">
+					<input class="form-control col-xs-4" id="ProductInput" placeholder="Product name..." maxlength="10" list="Products" >
+						<datalist id="Products">
+							<option value="Apple">
+							<option value="Apricot">
+							<option value="Aubergine">
+							<option value="Avocado">
+							<option value="Banana">
+							<option value="Broccoli">
+							<option value="Carrot">
+							<option value="Cherry">
+							<option value="Fig">
+							<option value="Grape">
+							<option value="Lemon">							
+						</datalist>
+				
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-5">
+			<div class="row">
+				<label class="control-label col-sm-3" for="QuantityInput">Quantity:</label>
+				<div class="col-sm-9"><input class="form-control col-xs-4" type="number" min="1" max="10" id="QuantityInput" placeholder="Quantity..."></div>
+			</div>
+		</div>
+		<div class="col-sm-2">
+			<button type="button" class="btn btn-default">
+				<span class="glyphicon glyphicon-shopping-cart"></span> Add</button>
+		</div>
+	</div>	
+		
+		<p>
+		
+		<div class="table-responsive">
+		<table class="table table-striped table-hover unselectable">
+    <thead>
+      <tr>
+        <th>Product</th>
+		<th>Price</th>
+        <th>Quantity</th>
+		<th>Total</th>
+        <th class="text-right">Remove</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  </div>	
+	</div>
+</div>
+</body>
+</html>
